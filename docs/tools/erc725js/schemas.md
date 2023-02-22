@@ -15,8 +15,8 @@ _A quick reference for keys used in schema definitions can be seen below_
 - `name`: An arbitrary name
 - `key`: The sha3 hash of the name
 - `keyType`: One of the supported erc725 keyTypes
-- `valueContent`: The described content type for parsing
 - `valueType`: The type of the content data in store for decoding
+- `valueContent`: The described content type for parsing
 
 ## Standard LSP Schemas
 
@@ -27,16 +27,19 @@ Current provided LSPs are:
 ```
 LSP1UniversalReceiverDelegate.json
 LSP3UniversalProfileMetadata.json
-LSP4DigitalAsset.json
 LSP4DigitalAssetLegacy.json
+LSP4DigitalAsset.json
 LSP5ReceivedAssets.json
 LSP6KeyManager.json
+LSP9Vault.json
+LSP10ReceivedVaults.json
+LSP12IssuedAssets.json
 ```
 
 You can import them from:
 
 ```js
-import LSP3 from '@erc725/erc725.js/schemas/LSP3UniversalProfile.json';
+import LSP3 from '@erc725/erc725.js/schemas/LSP3UniversalProfileMetadata.json';
 import LSP5 from '@erc725/erc725.js/schemas/LSP5ReceivedAssets.json';
 // ...
 

@@ -3,7 +3,7 @@ sidebar_position: 4
 title: LSP8IdentifiableDigitalAsset
 ---
 
-# LSP8IdentifiableDigtialAsset
+# LSP8IdentifiableDigitalAsset
 
 ## deploy
 
@@ -12,6 +12,11 @@ lspFactory.LSP8IdentifiableDigitalAsset.deploy(digitalAssetProperties [, options
 ```
 
 Deploys a mintable [LSP8 Identifiable Digital Asset](../../../standards/nft-2.0/LSP8-Identifiable-Digital-Asset).
+
+:::info
+By default LSPFactory deploys the [`Mintable`](https://github.com/lukso-network/lsp-smart-contracts/blob/develop/contracts/LSP8IdentifiableDigitalAsset/presets/LSP8Mintable.sol) implementation of LSP8 digital assets. To call the `mint` function import the `LSP8Mintable` abi from the [lsp-smart-contracts library](https://github.com/lukso-network/lsp-smart-contracts).
+
+:::
 
 ### Parameters
 
@@ -31,12 +36,11 @@ Specify properties to be set on the LSP8 Digital Asset during deployment.
 
 Object which specifies how the LSP8 Digital Asset will be deployed
 
-| Name                                                                           | Type             | Description                                                                                                          |
-| :----------------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------- |
-| [`version`](../deployment/digital-asset#version) (optional)                    | String           | The contract version you want to deploy. Defaults to latest version of the [lsp-smart-contracts] library.            |
-| [`deployReactive`](../deployment/digital-asset#reactive-deployment) (optional) | Boolean          | Whether to return an [RxJS Observable] of deployment events. Defaults to `false`.                                    |
-| [`deployProxy`](../deployment/digital-asset#proxy-deployment) (optional)       | Boolean          | Whether the contract should be deployed using a proxy contract implementation (e.g., [EIP1167]). Defaults to `true`. |
-| [`ipfsGateway`](../deployment/digital-asset#ipfs-upload-options) (optional)    | String \| Object | An IPFS gateway URL or an object containing IPFS configuration options.                                              |
+| Name                                                                           | Type             | Description                                                                                                                                                                           |
+| :----------------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`LSP8IdentifiableDigitalAsset`](../deployment/options.md) (optional)          | String           | Generic contract configuration object. Takes [`version`](../deployment/options.md#version) and [`deployProxy`](../deployment/options.md#version) parameters.                          |
+| [`onDeployEvents`](../deployment/digital-asset#reactive-deployment) (optional) | Object           | Pass `next`, `complete` and `error` callback handlers to be executed as deployment events are fired. See [`Reactive Deployment`](../deployment/digital-asset.md#reactive-deployment). |
+| [`ipfsGateway`](../deployment/digital-asset#ipfs-upload-options) (optional)    | String \| Object | An IPFS gateway URL or an object containing IPFS configuration options.                                                                                                               |
 
 :::info
 You can read more about the `options` object specification on [its official page](../deployment/digital-asset.md#deployment-configuration)
@@ -46,12 +50,7 @@ You can read more about the `options` object specification on [its official page
 
 | Type         | Description                                                                                  |
 | :----------- | :------------------------------------------------------------------------------------------- |
-| `Promise`    | Resolves to an object containing deployed contract details. Default return value.            |
-| `Observable` | An [RxJS Observable]. Returned if `deployReactive` is set to `true` inside `options` object. |
-
-:::info
-The `deployReactive` flag can be set in the `options` object to return an [RxJS Observable] of deployment events.
-:::
+| `Promise`    | Resolves to an object containing deployed contract details.                                  |
 
 ### Example
 
@@ -95,7 +94,7 @@ await lspFactory.LSP8IdentifiableDigitalAsset.deploy({
 */
 ```
 
-#### Deployment of Reactive LSP8 Identifiable Digital Asset Example
+#### Reactive LSP8 Digital Asset deployment Example
 
 ```javascript title="Deploying a Reactive LSP8 Identifiable Digital Asset"
 await lspFactory.LSP8IdentifiableDigitalAsset.deploy(
@@ -104,18 +103,22 @@ await lspFactory.LSP8IdentifiableDigitalAsset.deploy(
     symbol: 'TKN',
     controllerAddress: '0xb74a88C43BCf691bd7A851f6603cb1868f6fc147',
   },
-  { deployReactive: true }
-).subscribe({
-  next: (deploymentEvent) => {
-    console.log(deploymentEvent);
+  {
+    onDeployEvents: {
+      next: (deploymentEvent) => {
+        console.log(deploymentEvent);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+      complete: (contracts) => {
+        console.log('Deployment Complete');
+        console.log(contracts.LSP8IdentifiableDigitalAsset);
+      },
+    },
   },
-  error: (error) => {
-    console.error(error);
-  },
-  complete: () => {
-    console.log('Deployment Complete');
-  },
-});
+);
+
 /**
 {
   type: 'PROXY_DEPLOYMENT',
@@ -188,24 +191,21 @@ await lspFactory.LSP8IdentifiableDigitalAsset.deploy(
     ...
   }
 }
+Deployment Complete
 {
-  LSP8IdentifiableDigitalAsset: {
-    address: '0x2cA038832c15E61b83d47414Eb53818a45e0E142',
-    receipt: {
-      ...
-    },
-  }
+  address: '0x2cA038832c15E61b83d47414Eb53818a45e0E142',
+  receipt: {
+    ...
+  },
 }
 */
 ```
 
 [contract deployment options]: ../deployment/digital-asset/#deployment-configuration
-[rxjs observable]: https://rxjs.dev/guide/observable
 [constructor parameters]: ../../../../../standards/smart-contracts/lsp7-digital-asset#constructor
 [contract deployment options]: ../deployment/digital-asset.md
 [lsp4]: https://github.com/lukso-network/LIPs/blob/main/LSPs/LSP-4-DigitalAsset-Metadata.md
 [uploading lsp4 digital asset metadata]: ./lsp4-digital-asset-metadata#uploadMetadata
 [lsp-smart-contracts]: https://github.com/lukso-network/lsp-smart-contracts
 [eip1167]: https://eips.ethereum.org/EIPS/eip-1167
-[rxjs observable]: https://rxjs.dev/guide/observable
 [ipfs-http-client]: https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client#createoptions
