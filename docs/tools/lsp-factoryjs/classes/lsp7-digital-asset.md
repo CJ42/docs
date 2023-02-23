@@ -13,6 +13,12 @@ lspFactory.LSP7DigitalAsset.deploy(digitalAssetProperties [, options]);
 
 Deploys a mintable [LSP7 Digital Asset](../../../standards/nft-2.0/LSP7-Digital-Asset).
 
+:::info
+By default LSPFactory deploys the [`Mintable`](https://github.com/lukso-network/lsp-smart-contracts/blob/develop/contracts/LSP7DigitalAsset/presets/LSP7Mintable.sol) implementation of LSP7 digital assets. To call the `mint` function import the `LSP7Mintable` abi from the [lsp-smart-contracts library](https://github.com/lukso-network/lsp-smart-contracts).
+
+:::
+
+
 ### Parameters
 
 #### 1. `digitalAssetProperties` - Object
@@ -32,12 +38,11 @@ Specify properties to be set on the LSP7 Digital Asset during deployment.
 
 Object which specifies how the LSP7 Digital Asset will be deployed
 
-| Name                                                                           | Type             | Description                                                                                                          |
-| :----------------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------- |
-| [`version`](../deployment/digital-asset#version) (optional)                    | String           | The contract version you want to deploy. Defaults to latest version of the [lsp-smart-contracts] library.            |
-| [`deployReactive`](../deployment/digital-asset#reactive-deployment) (optional) | Boolean          | Whether to return an [RxJS Observable] of deployment events. Defaults to `false`.                                    |
-| [`deployProxy`](../deployment/digital-asset#proxy-deployment) (optional)       | Boolean          | Whether the contract should be deployed using a proxy contract implementation (e.g., [EIP1167]). Defaults to `true`. |
-| [`ipfsGateway`](../deployment/digital-asset#ipfs-upload-options) (optional)    | String \| Object | An IPFS gateway URL or an object containing IPFS configuration options.                                              |
+| Name                                                                           | Type             | Description                                                                                                                                                                           |
+| :----------------------------------------------------------------------------- | :--------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| [`LSP7DigitalAsset`](../deployment/options.md) (optional)                      | String           | Generic contract configuration object. Takes [`version`](../deployment/options.md#version) and [`deployProxy`](../deployment/options.md#version) parameters.                          |
+| [`onDeployEvents`](../deployment/digital-asset#reactive-deployment) (optional) | Object           | Pass `next`, `complete` and `error` callback handlers to be executed as deployment events are fired. See [`Reactive Deployment`](../deployment/digital-asset.md#reactive-deployment). |
+| [`ipfsGateway`](../deployment/digital-asset#ipfs-upload-options) (optional)    | String \| Object | An IPFS gateway URL or an object containing IPFS configuration options.                                                                                                               |
 
 :::info
 You can read more about the `options` object specification on [its official page](../deployment/digital-asset.md#deployment-configuration)
@@ -47,12 +52,7 @@ You can read more about the `options` object specification on [its official page
 
 | Type         | Description                                                                                  |
 | :----------- | :------------------------------------------------------------------------------------------- |
-| `Promise`    | Resolves to an object containing deployed contract details. Default return value.            |
-| `Observable` | An [RxJS Observable]. Returned if `deployReactive` is set to `true` inside `options` object. |
-
-:::info
-The `deployReactive` flag can be set in the `options` object to return an [RxJS Observable] of deployment events.
-:::
+| `Promise`    | Resolves to an object containing deployed contract details.                                  |
 
 ### Example
 
@@ -90,7 +90,7 @@ await lspFactory.LSP7DigitalAsset.deploy({
 */
 ```
 
-#### Deployment of Reactive LSP7 Digital Asset Example
+#### Reactive LSP7 Digital Asset deployment Example
 
 ```javascript title="Deploying a Reactive LSP7 Digital Asset"
 await lspFactory.LSP7DigitalAsset.deploy(
@@ -101,19 +101,21 @@ await lspFactory.LSP7DigitalAsset.deploy(
     isNFT: true,
   },
   {
-    deployReactive: true,
+    onDeployEvents: {
+      next: (deploymentEvent) => {
+        console.log(deploymentEvent);
+      },
+      error: (error) => {
+        console.error(error);
+      },
+      complete: (contracts) => {
+        console.log('Deployment Complete');
+        console.log(contracts.LSP7DigitalAsset);
+      },
+    },
   },
-).subscribe({
-  next: (deploymentEvent) => {
-    console.log(deploymentEvent);
-  },
-  error: (error) => {
-    console.error(error);
-  },
-  complete: () => {
-    console.log('Deployment Complete');
-  },
-});
+);
+
 /**
 {
   type: 'PROXY_DEPLOYMENT',
@@ -186,15 +188,13 @@ await lspFactory.LSP7DigitalAsset.deploy(
     ...
   }
 }
-{
-  LSP7DigitalAsset: {
-    address: '0x97053C386eaa49d6eAD7477220ca04EFcD857dde',
-    receipt: {
-      ...
-    },
-  }
-}
 Deployment Complete
+{
+  address: '0x97053C386eaa49d6eAD7477220ca04EFcD857dde',
+  receipt: {
+    ...
+  },
+}
 */
 ```
 
@@ -204,6 +204,5 @@ Deployment Complete
 [uploading lsp4 digital asset metadata]: ./lsp4-digital-asset-metadata#uploadMetadata
 [lsp-smart-contracts]: https://github.com/lukso-network/lsp-smart-contracts
 [eip1167]: https://eips.ethereum.org/EIPS/eip-1167
-[rxjs observable]: https://rxjs.dev/guide/observable
 [ipfs-http-client]: https://github.com/ipfs/js-ipfs/tree/master/packages/ipfs-http-client#createoptions
 [lsp7 decimals]: https://github.com/lukso-network/lsp-smart-contracts/blob/develop/docs/ILSP7DigitalAsset.md#decimals
